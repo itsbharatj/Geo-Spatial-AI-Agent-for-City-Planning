@@ -1,0 +1,17 @@
+{
+    "math": {
+        "command": "python",
+        "args": ["${PROJECT_ROOT}/MCP/test_servers/math_server.py"],
+        "transport": "stdio"
+    },
+    "duckduckgo": {
+        "command": "docker",
+        "args": [
+            "run",
+            "-i",
+            "--rm",
+            "mcp/duckduckgo"
+        ],
+        "transport": "stdio"
+    }
+}
