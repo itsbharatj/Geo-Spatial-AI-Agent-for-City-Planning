@@ -13,5 +13,16 @@
             "mcp/duckduckgo"
         ],
         "transport": "stdio"
+    },
+    "openweather" : 
+    {
+        "command": "docker", 
+        "args":[  
+            "run",
+            "-i",
+            "--rm",
+            "mcp/openweather"
+        ],
+        "transport": "stdio"
     }
 }
