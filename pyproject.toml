@@ -1,0 +1,10 @@
+[project]
+name = "geo-spatial-city-planning-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.15.0",
+    "python-dotenv>=1.1.1",
+]

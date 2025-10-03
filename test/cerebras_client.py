@@ -10,7 +10,7 @@ async def main():
             "math": {
                 "command": "python",
                 # Full absolute path to your math_server.py
-                "args": ["/home/uniqueusman/mcp/math_server.py"],
+                "args": ["/Users/bharatjain/Desktop/Geo Spatial City Planning Agent/test/math_server.py"],
                 "transport": "stdio",
             },
             "weather": {
@@ -18,6 +18,8 @@ async def main():
                 "url": "http://localhost:8000/mcp",
                 "transport": "streamable_http",
             },
+            "MCP_DOCKER":
+            {"command":"docker","args":["mcp","gateway","run"],"type":"stdio"}
         }
     )
     
@@ -55,6 +57,20 @@ async def main():
     try:
         weather_response = await agent.ainvoke(
             {"messages": [{"role": "user", "content": "what is the weather in NYC?"}]},
+            config={"recursion_limit": 50}
+        )
+        final_weather = weather_response["messages"][-1].content
+        print("Weather Response:", final_weather)
+        print(f"Total messages in conversation: {len(weather_response['messages'])}")
+    except Exception as e:
+        print(f"Error in weather query: {e}")
+
+
+    # Example search query
+    print("\n=== Search Query ===")
+    try:
+        weather_response = await agent.ainvoke(
+            {"messages": [{"role": "user", "content": "what is the date today and give me world news"}]},
             config={"recursion_limit": 50}
         )
         final_weather = weather_response["messages"][-1].content
