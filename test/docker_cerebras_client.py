@@ -9,14 +9,22 @@ async def main():
         {
             "math": {
                 "command": "python",
-                # Full absolute path to your math_server.py
                 "args": ["/home/uniqueusman/mcp/math_server.py"],
                 "transport": "stdio",
             },
             "weather": {
-                # HTTP server running on localhost:8000
                 "url": "http://localhost:8000/mcp",
                 "transport": "streamable_http",
+            },
+            "duckduckgo": {
+                "command": "docker",
+                "args": [
+                    "run",
+                    "-i",
+                    "--rm",
+                    "mcp/duckduckgo"
+                ],
+                "transport": "stdio",
             },
         }
     )
@@ -30,23 +38,20 @@ async def main():
         model="qwen-3-32b",
         temperature=0.2,
         max_tokens=10240,
-        # parallel_tool_calls=False,
     )
     
-    # Create ReAct agent with Cerebras + MCP tools
-    # Add recursion_limit to config to increase the limit
+    # Create ReAct agent
     agent = create_react_agent(llm, tools)
     
-    # Example math query - with increased recursion limit and debugging
+    # Example math query
     print("\n=== Math Query ===")
     try:
         math_response = await agent.ainvoke(
             {"messages": [{"role": "user", "content": "what's (3 + 5) x 12?"}]},
-            config={"recursion_limit": 50}  # Increase recursion limit
+            config={"recursion_limit": 50}
         )
         final_math = math_response["messages"][-1].content
         print("Math Response:", final_math)
-        print(f"Total messages in conversation: {len(math_response['messages'])}")
     except Exception as e:
         print(f"Error in math query: {e}")
     
@@ -59,11 +64,21 @@ async def main():
         )
         final_weather = weather_response["messages"][-1].content
         print("Weather Response:", final_weather)
-        print(f"Total messages in conversation: {len(weather_response['messages'])}")
     except Exception as e:
         print(f"Error in weather query: {e}")
-
-
+    
+    # Example DuckDuckGo search query
+    print("\n=== DuckDuckGo Search Query ===")
+    try:
+        search_response = await agent.ainvoke(
+            {"messages": [{"role": "user", "content": "What is the networth of Elon Musk"}]},
+            config={"recursion_limit": 50}
+        )
+        final_search = search_response["messages"][-1].content
+        print("Search Response:", final_search)
+        print(f"Total messages in conversation: {len(search_response['messages'])}")
+    except Exception as e:
+        print(f"Error in search query: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
