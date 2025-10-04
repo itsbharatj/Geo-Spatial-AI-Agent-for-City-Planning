@@ -2,6 +2,12 @@ import asyncio
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
+import os
+from dotenv import load_dotenv
+from langchain_cerebras import ChatCerebras
+
+
+load_dotenv()
 
 async def main():
     """Main function using OpenAI with TomTom MCP"""
@@ -10,6 +16,7 @@ async def main():
     print("  🗺️  TomTom MCP Client (OpenAI + LangGraph)")
     print("="*70)
     print()
+    print(os.getenv("TOMTOM_API_KEY"))
     
     # Initialize multi-server MCP client with TomTom
     print("🔌 Connecting to MCP servers...")
@@ -20,7 +27,7 @@ async def main():
                 "args": ["-y", "@tomtom-org/tomtom-mcp@latest"],
                 "transport": "stdio",
                 "env": {
-                    "TOMTOM_API_KEY": ""
+                    "TOMTOM_API_KEY": os.getenv("TOMTOM_API_KEY")
                 }
             }
         }
@@ -39,10 +46,18 @@ async def main():
     
     # Initialize OpenAI chat model
     print("🧠 Initializing OpenAI LLM...")
-    llm = ChatOpenAI(
-        model="gpt-4o-mini",  # or "gpt-4o" for better performance
-        temperature=0.2,
-    )
+    # llm = ChatOpenAI(
+    #     model="gpt-4o-mini",  # or "gpt-4o" for better performance
+    #     temperature=0.2,
+    # )
+
+    llm = ChatCerebras(
+            model="gpt-oss-120b",
+            temperature=0.2,
+            max_tokens=10240,
+            api_key=os.getenv("CEREBRAS_API_KEY")
+        )
+
     
     # Create ReAct agent
     print("🤖 Creating ReAct agent...")

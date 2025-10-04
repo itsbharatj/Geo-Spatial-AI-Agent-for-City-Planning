@@ -1,5 +1,5 @@
 {
-        "duckduckgo": {
+    "duckduckgo": {
         "command": "docker",
         "args": [
             "run",
