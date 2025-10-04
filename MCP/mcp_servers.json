@@ -25,11 +25,19 @@
         ],
         "transport": "stdio"
     }, 
-    "ACICN-MCP":{
+    "ACICN-MCP-AQI":{
         "command":"uv", 
         "args":[
             "run", 
             "services/AQI/aqicn-mcp/aqicn_server.py"
+        ], 
+        "transport":"stdio"
+    }, 
+    "VISUAL-CROSSING-WEATHER":{
+        "command":"uv", 
+        "args":[
+            "run", 
+            "services/weather/visual_crossing_mcp/visual_crossing_mcp.py"
         ], 
         "transport":"stdio"
     }
