@@ -31,6 +31,15 @@
         "transport": "stdio",
         "env": {
             "TOMTOM_API_KEY": "$TOMTOM_API_KEY"
-    }   
-}
+    }
+    }, 
+    "DATA-COMMONS-GOOGLE": {
+        "command": "uvx",
+        "args": ["datacommons-mcp","serve", "stdio"],
+        "transport": "stdio",
+        "env": {
+            "DC_API_KEY": "$DC_API_KEY"
+    }
+    }
+
 }
