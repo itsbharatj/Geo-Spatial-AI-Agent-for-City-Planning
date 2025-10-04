@@ -44,7 +44,10 @@ class MCP_Client:
 async def main():
     client = MCP_Client()
     await client.setup()
-    await client.serve_query(query="Give me today's news")
+    prompt = input()
+    while prompt!="quit": 
+        await client.serve_query(query=prompt)
+        prompt = input()
 
 if __name__ == "__main__":
     asyncio.run(main())

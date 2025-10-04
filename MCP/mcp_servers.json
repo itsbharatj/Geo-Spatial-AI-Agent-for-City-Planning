@@ -4,16 +4,6 @@
         "args": ["${PROJECT_ROOT}/MCP/test_servers/math_server.py"],
         "transport": "stdio"
     },
-    "duckduckgo": {
-        "command": "docker",
-        "args": [
-            "run",
-            "-i",
-            "--rm",
-            "mcp/duckduckgo"
-        ],
-        "transport": "stdio"
-    },
     "openweather" : 
     {
         "command": "docker", 
@@ -24,5 +14,23 @@
             "mcp/openweather"
         ],
         "transport": "stdio"
+    },
+        "duckduckgo": {
+        "command": "docker",
+        "args": [
+            "run",
+            "-i",
+            "--rm",
+            "mcp/duckduckgo"
+        ],
+        "transport": "stdio"
+    }, 
+    "ACICN-MCP":{
+        "command":"uv", 
+        "args":[
+            "run", 
+            "services/AQI/aqicn-mcp/aqicn_server.py"
+        ], 
+        "transport":"stdio"
     }
 }
