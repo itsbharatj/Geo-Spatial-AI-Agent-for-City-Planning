@@ -5,6 +5,7 @@ from langchain_cerebras import ChatCerebras
 import json
 import os
 from dotenv import load_dotenv
+import re
 
 class MCP_Client: 
     def __init__(self): 
@@ -15,9 +16,14 @@ class MCP_Client:
         for server in config.values():
             if "args" in server:
                 server["args"] = [arg.replace("${PROJECT_ROOT}", project_root) for arg in server["args"]]
+            if "env" in server: 
+                for key in server["env"]:
+                    if re.match(r".*_API_KEY$", key):
+                        server["env"][key] = os.getenv(key, "")
+                print("TOMtomapi",server["env"][key])
         self.client = MultiServerMCPClient(config)
         self.llm = ChatCerebras(
-            model="qwen-3-32b",
+            model="gpt-oss-120b",
             temperature=0.2,
             max_tokens=10240,
             api_key=os.getenv("CEREBRAS_API_KEY")

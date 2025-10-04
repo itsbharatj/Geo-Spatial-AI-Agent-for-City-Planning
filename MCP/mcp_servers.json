@@ -1,20 +1,4 @@
 {
-    "math": {
-        "command": "python",
-        "args": ["${PROJECT_ROOT}/MCP/test_servers/math_server.py"],
-        "transport": "stdio"
-    },
-    "openweather" : 
-    {
-        "command": "docker", 
-        "args":[  
-            "run",
-            "-i",
-            "--rm",
-            "mcp/openweather"
-        ],
-        "transport": "stdio"
-    },
         "duckduckgo": {
         "command": "docker",
         "args": [
@@ -40,5 +24,13 @@
             "services/weather/visual_crossing_mcp/visual_crossing_mcp.py"
         ], 
         "transport":"stdio"
-    }
+    }, 
+    "TOMTOM-TRAFFIC": {
+        "command": "npx",
+        "args": ["-y", "@tomtom-org/tomtom-mcp@latest"],
+        "transport": "stdio",
+        "env": {
+            "TOMTOM_API_KEY": "$TOMTOM_API_KEY"
+    }   
+}
 }
