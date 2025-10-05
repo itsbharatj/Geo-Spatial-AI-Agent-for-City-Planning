@@ -1,278 +1,308 @@
 # Geo Spatial City Planning Agent
 
-A comprehensive AI-powered city planning and analysis platform that combines real-time data collection with machine learning models to generate detailed urban planning insights and reports.
+# Cursor for Urban Planners
 
-## Overview
+**An AI-powered intelligence platform for city planning and urban analysis**
 
-This platform serves as an intelligent city planning assistant that can analyze urban environments, predict traffic patterns, assess air quality, optimize transit routes, and provide comprehensive planning recommendations. It integrates multiple data sources and AI models to deliver actionable insights for urban planners and decision-makers.
+![Frontend Interface](frontend.png)
 
-## Tech Stack
+## What is Cursor for Urban Planners?
 
-### Backend Framework
-- **FastAPI**: Modern, fast web framework for building APIs
-- **Uvicorn**: ASGI server for running the FastAPI application
+Cursor for Urban Planners brings the power of AI-assisted development to urban planning and city analysis. Just as Cursor IDE revolutionized software development with AI pair programming, this platform transforms how urban planners, researchers, and city officials analyze and understand cities worldwide.
+
+Think of it as having an expert urban planning team at your fingertips - one that can instantly pull real-time data from multiple sources, visualize complex urban patterns in 2D and 3D, and generate comprehensive reports about any city on Earth.
+
+## Architecture
+
+![Project Architecture](project_architecture.png)
+
+The platform employs a **multi-agent AI architecture** where specialized MCP (Model Context Protocol) services act as expert consultants in different domains:
+
+### The AI Agent Team
+
+Each agent is a specialist that brings domain-specific intelligence:
+
+- **Air Quality Analyst** (AQICN MCP) - Real-time pollution and air quality monitoring
+- **Weather Specialist** (Visual Crossing) - Climate patterns, forecasts, and historical weather data
+- **Traffic Engineer** (TomTom) - Real-time traffic flow, congestion analysis, road network data
+- **Demographics Expert** (Google Data Commons) - Population statistics, economic indicators, social metrics
+- **Research Assistant** (DuckDuckGo) - General information gathering and context research
+- **Strategic Thinker** (Sequential Thinking) - Advanced reasoning and multi-step analysis
+
+These agents work in concert, coordinated by GPT-4o and Cerebras AI models, to provide comprehensive urban intelligence through LangChain and LangGraph orchestration.
+
+## Core Capabilities
+
+### Dual-Mode Intelligence
+
+**Chat Mode** - Your Interactive Urban Planning Assistant
+
+- Ask natural language questions about any city
+- Click locations on the map for instant analysis
+- Get real-time answers with live data visualization
+- Interactive query processing with context awareness
+- Example: "What's the air quality like in Delhi today?"
+
+**Report Mode** - Comprehensive Urban Analysis
+
+- Generate professional markdown reports on demand
+- Compare multiple cities across dozens of metrics
+- Export detailed analyses for stakeholders
+- AI-powered query decomposition and sub-question generation
+- Example: "Generate a sustainability report comparing Copenhagen and Singapore"
+
+### Advanced Visualization Engine
+
+**2D Mapping** (Leaflet)
+
+- Interactive world map with precision point marking
+- Custom overlays and data layers
+- Real-time city data integration
+
+**3D Visualization** (Deck.gl Globe)
+
+- Nine specialized visualization layers:
+  - **3D Columns**: Visualize AQI levels as vertical bars
+  - **Hexagon Grid**: Aggregate spatial density patterns
+  - **City Bubbles**: Population-scaled point visualization
+  - **Heatmap**: Temperature and environmental gradients
+  - **Connection Arcs**: City relationships and flows
+  - **Screen Grid**: High-density aggregation
+  - **Contour Lines**: Topographic environmental data
+  - **City Labels**: Geographic annotation
+  - **Weather Icons**: Real-time condition indicators
+
+**Analytics Dashboard**
+
+- Temperature and humidity trends
+- Air quality indices with health categories
+- Population demographics and comparisons
+- Chart.js powered data visualizations
+
+## Data Intelligence
+
+The platform integrates **13 critical urban planning data categories**:
+
+1. **City Maps and Zoning Data** - Spatial layouts and land use patterns
+2. **Population Statistics** - Demographics, density, growth trends
+3. **Infrastructure Details** - Built environment and utilities
+4. **Traffic Flow Data** - Congestion patterns and mobility metrics
+5. **Public Transport Data** - Transit networks and accessibility
+6. **Road Networks** - Street layouts and connectivity analysis
+7. **Air Quality Metrics** - Pollution levels and health impacts
+8. **Local Context** - News, reports, and current events
+9. **Economic Data** - GDP, employment, development indicators
+10. **Green Cover and Open Spaces** - Parks, urban forestry, public spaces
+11. **Historical Development Trends** - Urban growth patterns over time
+12. **Climate and Risk Data** - Vulnerability assessments, disaster preparedness
+13. **Community Amenities** - Schools, hospitals, cultural facilities
+
+### Data Sources (via MCP Integration)
+
+All data is pulled in real-time through standardized MCP interfaces:
+
+- **API/Live Data**: Real-time feeds from AQICN, Visual Crossing, TomTom
+- **Static Data Storage**: Google Data Commons for demographics and statistics
+- **ML Models**: Sequential thinking for advanced analysis and reasoning
+- **Web Intelligence**: DuckDuckGo for contextual information gathering
+
+## Sample Queries and Use Cases
+
+### Urban Planning Analysis
+
+```
+"Analyze the urban development potential of Mohali, India, including traffic
+infrastructure, air quality trends, and population growth projections"
+```
+
+### Comparative City Analysis
+
+```
+"Compare Delhi and Mumbai in terms of air quality, traffic congestion, and
+urban growth patterns for the next 5 years"
+```
+
+### Infrastructure Planning
+
+```
+"Evaluate the need for new public transit routes in Chandigarh based on
+population density and current traffic patterns"
+```
+
+### Environmental Impact Assessment
+
+```
+"Assess the environmental impact of proposed industrial development in Punjab,
+focusing on air quality and weather patterns"
+```
+
+### Traffic and Transportation
+
+```
+"Analyze current traffic flow patterns in Delhi and recommend optimization
+strategies for peak hours"
+```
+
+### Regional Development Planning
+
+```
+"Create a comprehensive development plan for smart city initiatives in Mohali,
+including energy demand forecasting and land use optimization"
+```
+
+## Professional Applications
+
+**For Urban Planners**
+
+- Assess potential development sites across multiple criteria
+- Compare infrastructure between peer cities
+- Generate impact assessments for planning proposals
+- Optimize transit routes and transportation networks
+
+**For City Officials**
+
+- Monitor real-time environmental conditions
+- Track urban metrics against policy goals
+- Create reports for public communication
+- Make data-driven policy decisions
+
+**For Researchers**
+
+- Conduct comparative urban studies
+- Analyze climate resilience across cities
+- Study urbanization patterns globally
+- Access multi-source integrated datasets
+
+**For Consultants**
+
+- Rapid city assessments for client proposals
+- Multi-city benchmarking studies
+- Due diligence for urban development projects
+- Professional report generation with executive summaries
+
+**For Educators**
+
+- Interactive urban geography lessons
+- Case study generation for coursework
+- Real-world data for student projects
+- Visual learning with 3D mapping
+
+## Technology Foundation
+
+### Backend
+
+- **FastAPI**: Modern, high-performance web framework
+- **Uvicorn**: ASGI server for production deployment
 - **Python 3.11+**: Core programming language
 
-### AI and Language Models
-- **Cerebras Cloud SDK**: Integration with Cerebras AI models
-- **OpenAI GPT-4**: Advanced language model for analysis
-- **LangChain**: Framework for building applications with LLMs
-- **LangChain Cerebras**: Cerebras-specific LangChain integration
+### AI & Language Models
 
-### Data Processing and Analysis
+- **Llama**: Primary intelligence coordinator
+- **Cerebras Cloud SDK**: High-speed AI inference
+- **LangChain**: LLM application framework
+- **LangGraph**: Agent orchestration and workflow management
+
+### Data Processing
+
 - **Pydantic**: Data validation and serialization
 - **TikToken**: Token counting and text processing
-- **Python-dotenv**: Environment variable management
-
-### Multi-Agent Framework
-- **LangChain MCP Adapters**: Model Context Protocol integration
-- **LangGraph**: Agent orchestration and workflow management
 - **Loguru**: Advanced logging capabilities
 
-### Data Sources Integration
-- **DuckDuckGo Search**: Web search capabilities
-- **Visual Crossing Weather API**: Weather data and forecasts
-- **TomTom Traffic API**: Real-time traffic information
-- **AQICN API**: Air quality index data
-- **Google Data Commons**: Demographic and statistical data
+### Frontend Stack
 
-### Document Processing
-- **Markdown**: Report generation
-- **WeasyPrint**: PDF generation capabilities
-- **Pygments**: Syntax highlighting
+- **Leaflet.js**: 2D interactive mapping
+- **Deck.gl**: 3D geospatial visualizations
+- **Chart.js**: Data visualization and analytics
+- **Tailwind CSS**: Modern UI styling
 
+### Integration Layer
 
+- **Model Context Protocol (MCP)**: Standardized service integration
+- **LangChain MCP Adapters**: MCP-to-LangChain bridges
+- **Docker**: Containerized service deployment
+
+## The MCP Architecture Advantage
+
+By using the Model Context Protocol, Cursor for Urban Planners achieves:
+
+- **Modularity**: Each data source is an independent, upgradeable service
+- **Extensibility**: New data sources can be added without changing core code
+- **Reliability**: Service failures are isolated and don't crash the system
+- **Scalability**: Agents can be distributed and load-balanced
+- **Maintainability**: Each agent has a single, clear responsibility
+- **Flexibility**: Mix and match services based on query requirements
+
+## Quick Start
+
+**Prerequisites**: Python 3.11+, Node.js 18+, Docker, API keys (OpenAI, Cerebras, TomTom, Visual Crossing)
+
+```bash
+# 1. Set up environment
+cp .env.example .env  # Add your API keys
+
+# 2. Install dependencies
+uv sync  # or pip install -r requirements.txt
+
+# 3. Start backend
+uvicorn backend:app --reload
+
+# 4. Open frontend
+open index.html
+```
+
+## API Endpoints
+
+**`POST /api/city-data`** - Interactive chat queries with map context
+
+- Real-time city analysis
+- Map-based coordinate processing
+- JSON response with visualization data
+
+**`POST /plan`** - Comprehensive report generation
+
+- Multi-source data synthesis
+- Markdown-formatted reports
+- AI-powered query decomposition
+
+**`GET /health`** - System status and configuration check
+
+**`GET /`** - API information and documentation
 
 ## Project Structure
 
 ```
-Geo-Spatial-City-Planning-Agent/
-├── backend.py                 # Main FastAPI application
-├── requirements.txt           # Python dependencies
-├── .env                      # Environment variables (not in repo)
-├── MCP/                      # Model Context Protocol components
-│   ├── cerebras_client.py    # Cerebras AI client
-│   ├── overall_main.py       # Main query processing pipeline
-│   ├── prompts.json          # System prompts and templates
-│   ├── mcp_servers.json      # MCP server configurations
-│   └── MCP_token_summizer.py # Text summarization utility
-├── frontend/                 # Web interface components
-│   ├── report.html          # Report generation interface
-│   └── app.py              # Alternative frontend application
-└── City Planning ML Models MCP/ # ML models directory
-    └── integrated_client.py  # ML integration client
+Cursor-for-Urban-Planners/
+├── backend.py                      # FastAPI application
+├── index.html                      # Main frontend interface
+├── requirements.txt                # Python dependencies
+├── .env                           # Environment configuration
+├── MCP/                           # Model Context Protocol
+│   ├── cerebras_client.py         # Cerebras AI integration
+│   ├── overall_main.py            # Query processing pipeline
+│   ├── prompts.json               # System prompts
+│   ├── mcp_servers.json           # MCP configurations
+│   └── MCP_token_summizer.py      # Text summarization
+├── services/                      # MCP service implementations
+│   ├── AQI/                       # Air quality service
+│   ├── weather/                   # Weather data service
+│   └── traffic/                   # Traffic data service
+└── City Planning ML Models MCP/   # ML model integrations
+    └── integrated_client.py       # ML client interface
 ```
 
-## Installation and Setup
+## From Concept to Reality
 
-### Prerequisites
-- Python 3.11 or higher
-- UV package manager (recommended) or pip
-- Required API keys (see Environment Variables section)
+This isn't just a mapping tool - it's an **AI-powered urban intelligence platform** that brings together:
 
-### Installation Steps
+- Real-time data from 6+ specialized services
+- Advanced 3D visualization capabilities
+- Natural language interaction with context awareness
+- Professional report generation with executive summaries
+- Multi-agent AI coordination via LangChain/LangGraph
+- Intelligent query decomposition and synthesis
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/itsbharatj/Geo-Spatial-AI-Agent-for-City-Planning.git
-   cd Geo-Spatial-AI-Agent-for-City-Planning
-   ```
+The result? A tool that feels like having an entire urban planning consultancy available 24/7, capable of analyzing any city on Earth within seconds, with the intelligence to understand complex queries and deliver actionable insights.
 
-2. **Install dependencies using UV (recommended)**
-   ```bash
-   uv sync
-   ```
-   
-   Or using pip:
-   ```bash
-   pip install -r requirements.txt
-   ```
+---
 
-3. **Set up environment variables**
-   Create a `.env` file in the root directory:
-   ```env
-   CEREBRAS_API_KEY=your_cerebras_api_key
-   OPENAI_API_KEY=your_openai_api_key
-   TOMTOM_API_KEY=your_tomtom_api_key
-   VISUAL_CROSSING_API_KEY=your_visual_crossing_api_key
-   PROJECT_ROOT=/path/to/your/project
-   ```
-
-## Running the Application
-
-### Start the Backend Server
-```bash
-uvicorn backend:app --reload
-```
-
-The server will start on `http://localhost:8000`
-
-### Alternative: Run with UV
-```bash
-uv run uvicorn backend:app --reload
-```
-
-### Access the Application
-- **API Documentation**: `http://localhost:8000/docs`
-- **Health Check**: `http://localhost:8000/health`
-- **Report Generator**: Open `frontend/report.html` in your browser
-
-## API Endpoints
-
-### POST /plan
-Generates comprehensive city planning reports using MCP agents.
-
-**Request Body:**
-```json
-{
-  "query": "Analyze traffic patterns and air quality in Delhi for urban planning"
-}
-```
-
-**Response:** Markdown-formatted comprehensive report
-
-### POST /api/city-data
-Analyzes cities based on map coordinates and user queries.
-
-**Request Body:**
-```json
-{
-  "query": "Compare weather and air quality",
-  "context": {
-    "clickedPoints": [
-      {"lat": 28.6139, "lng": 77.2090},
-      {"lat": 40.7128, "lng": -74.0060}
-    ],
-    "mapView": "leaflet"
-  }
-}
-```
-
-**Response:** JSON with city data, charts, and analysis
-
-### GET /health
-Returns API health status and configuration.
-
-### GET /
-Returns API information and available endpoints.
-
-## Sample Prompts and Queries
-
-### Urban Planning Analysis
-```
-"Analyze the urban development potential of Mohali, India, including traffic infrastructure, air quality trends, and population growth projections"
-```
-
-### Comparative City Analysis
-```
-"Compare Delhi and Mumbai in terms of air quality, traffic congestion, and urban growth patterns for the next 5 years"
-```
-
-### Infrastructure Planning
-```
-"Evaluate the need for new public transit routes in Chandigarh based on population density and current traffic patterns"
-```
-
-### Environmental Impact Assessment
-```
-"Assess the environmental impact of proposed industrial development in Punjab, focusing on air quality and weather patterns"
-```
-
-### Traffic and Transportation
-```
-"Analyze current traffic flow patterns in Delhi and recommend optimization strategies for peak hours"
-```
-
-### Regional Development Planning
-```
-"Create a comprehensive development plan for smart city initiatives in Mohali, including energy demand forecasting and land use optimization"
-```
-
-## Features
-
-### Multi-Source Data Integration
-- Real-time weather and climate data
-- Traffic flow and congestion information
-- Air quality monitoring and forecasting
-- Demographic and economic indicators
-- Geographic and spatial data
-
-### AI-Powered Analysis
-- Query decomposition and sub-question generation
-- Multi-agent processing pipeline
-- Intelligent data synthesis and summarization
-- Natural language report generation
-
-### Comprehensive Reporting
-- Markdown-formatted reports
-- Executive summaries with key insights
-- Actionable recommendations
-- Data visualization integration
-- Interactive map-based analysis
-
-### Flexible Query Processing
-- Natural language input processing
-- Context-aware query understanding
-- Multi-perspective analysis
-- Real-time data integration
-
-## Configuration
-
-### MCP Servers Configuration
-The `MCP/mcp_servers.json` file contains configurations for all data source integrations. Each server defines connection parameters, API keys, and data processing settings.
-
-### Prompt Templates
-The `MCP/prompts.json` file contains system prompts for:
-- Query breakdown and decomposition
-- Report generation guidelines
-- Analysis structure templates
-
-### Environment Variables
-Required environment variables include API keys for various services:
-- `CEREBRAS_API_KEY`: Cerebras Cloud API access
-- `OPENAI_API_KEY`: OpenAI API access
-- `TOMTOM_API_KEY`: TomTom mapping and traffic data
-- `VISUAL_CROSSING_API_KEY`: Weather data access
-
-## Development
-
-### Running in Development Mode
-```bash
-uvicorn backend:app --reload --host 0.0.0.0 --port 8000
-```
-
-### Testing Individual Components
-```bash
-# Test MCP client directly
-uv run -m MCP.overall_main
-
-# Test specific modules
-python MCP/cerebras_client.py
-```
-
-### Adding New Data Sources
-1. Add configuration to `MCP/mcp_servers.json`
-2. Update environment variables in `.env`
-3. Modify query processing in `MCP/overall_main.py`
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-## Support
-
-For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/itsbharatj/Geo-Spatial-AI-Agent-for-City-Planning) or open an issue.
-
-## Version
-
-Current Version: 1.0.0
-
-Last Updated: October 2025
+**Built for urban planners, by understanding what planners need**: Fast insights, reliable data, professional outputs, and the ability to see patterns that spreadsheets hide. Powered by cutting-edge AI orchestration and real-time multi-source data integration.
