@@ -40,6 +40,16 @@
         "env": {
             "DC_API_KEY": "$DC_API_KEY"
     }
+    },
+        "sequentialthinking": {
+        "command": "docker",
+        "args": [
+            "run",
+            "--rm",
+            "-i",
+            "mcp/sequentialthinking"
+        ],
+        "transport": "stdio"
     }
 
 }

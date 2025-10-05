@@ -1,0 +1,144 @@
+{
+    "predict_traffic_flow": {
+        "type": "object",
+        "properties": {
+            "historical_traffic": {
+                "type": "array",
+                "description": "Array of [timestamp, flow_rate, speed, occupancy]",
+                "items": {"type": "array", "items": [{"type": "string"}, {"type": "number"}, {"type": "number"}, {"type": "number"}]}
+            },
+            "weather_conditions": {
+                "type": "object",
+                "properties": {
+                    "temperature": {"type": "number"},
+                    "precipitation": {"type": "number"},
+                    "visibility": {"type": "number"}
+                }
+            },
+            "events": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "type": {"type": "string"},
+                        "location": {"type": "string"},
+                        "time": {"type": "string"}
+                    },
+                    "required": ["type", "location", "time"]
+                }
+            },
+            "prediction_horizon": {"type": "integer", "default": 1}
+        },
+        "required": ["historical_traffic"],
+        "additionalProperties": False
+    },
+
+    "forecast_air_quality": {
+        "type": "object",
+        "properties": {
+            "historical_aqi": {
+                "type": "array",
+                "description": "Array of [timestamp, aqi_value, pm25, pm10, o3, no2]",
+                "items": {"type": "array", "items": [{"type": "string"}, {"type": "number"}, {"type": "number"}, {"type": "number"}, {"type": "number"}, {"type": "number"}]}
+            },
+            "weather_forecast": {"type": "object"},
+            "forecast_days": {"type": "integer", "default": 7}
+        },
+        "required": ["historical_aqi"],
+        "additionalProperties": False
+    },
+
+    "predict_urban_growth": {
+        "type": "object",
+        "properties": {
+            "historical_data": {
+                "type": "array",
+                "description": "Array of [year, population, built_area, gdp, employment_rate]",
+                "items": {"type": "array", "items": [{"type": "integer"}, {"type": "number"}, {"type": "number"}, {"type": "number"}, {"type": "number"}]}
+            },
+            "infrastructure_plans": {"type": "array"},
+            "projection_years": {"type": "integer", "default": 5}
+        },
+        "required": ["historical_data"],
+        "additionalProperties": False
+    },
+
+    "optimize_transit_routes": {
+        "type": "object",
+        "properties": {
+            "demand_points": {
+                "type": "array",
+                "description": "Array of [lat, lon, demand_weight]",
+                "items": {"type": "array", "items": [{"type": "number"}, {"type": "number"}, {"type": "number"}]}
+            },
+            "existing_stops": {
+                "type": "array",
+                "items": {"type": "array", "items": [{"type": "number"}, {"type": "number"}, {"type": "number"}]}
+            },
+            "constraints": {
+                "type": "object",
+                "properties": {
+                    "max_distance": {"type": "number"},
+                    "min_demand": {"type": "number"}
+                }
+            }
+        },
+        "required": ["demand_points"],
+        "additionalProperties": False
+    },
+
+    "detect_crime_hotspots": {
+        "type": "object",
+        "properties": {
+            "crime_incidents": {
+                "type": "array",
+                "description": "Array of [lat, lon, timestamp, crime_type, severity]",
+                "items": {"type": "array", "items": [{"type": "number"}, {"type": "number"}, {"type": "string"}, {"type": "string"}, {"type": "integer"}]}
+            },
+            "temporal_window": {"type": "integer"},
+            "contamination": {"type": "number", "default": 0.1}
+        },
+        "required": ["crime_incidents"],
+        "additionalProperties": False
+    },
+
+    "forecast_energy_demand": {
+        "type": "object",
+        "properties": {
+            "historical_demand": {
+                "type": "array",
+                "description": "Array of [timestamp, demand_mw, temperature, day_type]",
+                "items": {"type": "array", "items": [{"type": "string"}, {"type": "number"}, {"type": "number"}, {"type": "string"}]}
+            },
+            "weather_forecast": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "date": {"type": "string"},
+                        "temp_high": {"type": "number"},
+                        "temp_low": {"type": "number"}
+                    }
+                }
+            },
+            "forecast_horizon": {"type": "integer", "default": 7}
+        },
+        "required": ["historical_demand"],
+        "additionalProperties": False
+    },
+
+    "classify_land_use": {
+        "type": "object",
+        "properties": {
+            "parcels": {
+                "type": "array",
+                "description": "Array of [lat, lon, current_use, size_sqm, value]",
+                "items": {"type": "array", "items": [{"type": "number"}, {"type": "number"}, {"type": "string"}, {"type": "number"}, {"type": "number"}]}
+            },
+            "zoning_rules": {"type": "object"},
+            "development_goals": {"type": "object"}
+        },
+        "required": ["parcels"],
+        "additionalProperties": False
+    }
+}

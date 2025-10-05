@@ -4,13 +4,14 @@ from langgraph.prebuilt import create_react_agent
 from langchain_cerebras import ChatCerebras
 import json
 import os
+
 from dotenv import load_dotenv
 import re
 
 class MCP_Client: 
-    def __init__(self): 
+    def __init__(self,config_file="MCP/mcp_servers.json"): 
         load_dotenv()
-        with open("MCP/mcp_servers.json") as f:
+        with open(config_file) as f:
             config = json.load(f)
         project_root = os.environ.get("PROJECT_ROOT", os.getcwd())
         for server in config.values():
@@ -20,7 +21,6 @@ class MCP_Client:
                 for key in server["env"]:
                     if re.match(r".*_API_KEY$", key):
                         server["env"][key] = os.getenv(key, "")
-                print("TOMtomapi",server["env"][key])
         self.client = MultiServerMCPClient(config)
         self.llm = ChatCerebras(
             model="gpt-oss-120b",
