@@ -9,8 +9,7 @@ import os
 from dotenv import load_dotenv
 import asyncio
 from loguru import logger
-
-
+from MCP_token_summizer import TextSummarizer
 '''
 
     Overall Query runner: 
@@ -53,6 +52,17 @@ class cityplanning_query_runner:
         self.query_title = self.llm.invoke([("system",self.prompts["User Query Title"]),("human",original_user_query)])
         print(self.query_title.content)
         self.file_path = f"MCP/processed_prompts/{self.query_title.content}"
+        self.file_path_output = f"MCP/processed_prompts/{self.query_title.content}_summary"
+
+        API_KEY = os.getenv("CEREBRAS_API_KEY", "your-api-key-here")
+
+        # Initialize summarizer
+        self.summarizer = TextSummarizer(
+            api_key=API_KEY,
+            max_context=65000,  # Maximum tokens for final summary
+            chunk_size=50000,   # Process 50k tokens at a time
+            model="llama-3.3-70b"  # Cerebras model
+        )
         
 
         logger.add(self.file_path,format="{message}",mode="a")
@@ -60,6 +70,8 @@ class cityplanning_query_runner:
 
         self.original_user_query = original_user_query
         self.coordinates = location_coordiantes  
+
+    
     
     async def main_runner(self):
         await self.MCP_client.setup()
@@ -89,15 +101,26 @@ class cityplanning_query_runner:
         subquestions = json.loads(sub_queries.choices[0].message.content)["subquestions"]
         num_sub_queries = len(subquestions)
 
-        for i in range(num_sub_queries):
+        for i in range(max(num_sub_queries,5)):
             ## Calling the agent for each of the sub-query here\
-            logger.add(self.file_path,format="{message}",mode="a")
-            logger.info(f"Sub Question {i}: {subquestions[i]}")
 
             response = await self.MCP_client.serve_query(query=subquestions[i])
 
-            logger.add(self.file_path,format="{message}",mode="a")
-            logger.info(f"Response {i}: {response}")
+            with open(self.file_path, 'a') as f:
+                f.write(subquestions[i])
+                f.write(f"Response:  {response}")
+
+            print("Done",i)
+        
+        summary = self.summarizer.summarize_file(self.file_path, self.file_path_output)
+
+
+        self.report = self.llm.invoke([("system",self.prompts["Report Generation"]),("human",summary)])
+
+        with open("report.md", "w") as report_file:
+            report_file.write(self.report.content)
+
+        return self.report
         
 
 
@@ -105,7 +128,7 @@ class cityplanning_query_runner:
 async def main(): 
     user_query = input("What is the query?")
     agent = cityplanning_query_runner(user_query)
-    await agent.main_runner()
+    print(await agent.main_runner())
 
 if __name__ == "__main__":
     asyncio.run(main()) 

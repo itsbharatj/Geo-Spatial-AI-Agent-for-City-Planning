@@ -7,7 +7,6 @@ import os
 
 from dotenv import load_dotenv
 import re
-
 class MCP_Client: 
     def __init__(self,config_file="MCP/mcp_servers.json"): 
         load_dotenv()
@@ -43,7 +42,10 @@ class MCP_Client:
             )
             final_weather = response["messages"][-1].content
             print("Response:", final_weather)
+            
             print(f"Total messages in conversation: {len(response['messages'])}")
+            return final_weather
+        
         except Exception as e:
             print(f"Error in query: {e}")
 
