@@ -11,42 +11,11 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
+
+    <link rel="stylesheet" href="styles.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/deck.gl@^9.0.0/dist.min.js"></script>
-
-    <style>
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-      .spinner {
-        border: 3px solid #374151;
-        border-top: 3px solid #3b82f6;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        animation: spin 1s linear infinite;
-        display: inline-block;
-      }
-      .message-bubble {
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        max-width: 80%;
-      }
-      .message-user {
-        background: #3b82f6;
-        color: white;
-      }
-      .message-assistant {
-        background: #374151;
-        color: white;
-      }
-    </style>
   </head>
   <body class="overflow-hidden text-white bg-gray-950">
     <div class="flex h-screen">
@@ -518,5 +487,6 @@
         </div>
       </main>
     </div>
+    <script src="script.js"></script>
   </body>
 </html>
