@@ -8,7 +8,7 @@ from cerebras.cloud.sdk import Cerebras
 import os
 from dotenv import load_dotenv
 import asyncio
-import loguru
+from loguru import logger
 
 
 '''
@@ -38,24 +38,28 @@ class cityplanning_query_runner:
 
         ## Define the modules
         self.LLM_Client = Cerebras(api_key=os.getenv("CEREBRAS_API_KEY"))
-        self.results_path = os.mkdir("MCP/processed_prompts",exist_ok=True)
-        self.file_path = f"MCP/processed_prompts/file"
+        self.results_path = os.makedirs("MCP/processed_prompts",exist_ok=True)
+
+        prompts_file = "MCP/prompts.json"
+        with open(prompts_file, 'r') as f:
+            self.prompts = json.load(f)
 
         self.MCP_client = MCP_Client()
         self.model = "llama-3.3-70b"
         self.llm = ChatCerebras(
             model=self.model,  
-        )      
+        )
+        
+        self.query_title = self.llm.invoke([("system",self.prompts["User Query Title"]),("human",original_user_query)])
+        print(self.query_title.content)
+        self.file_path = f"MCP/processed_prompts/{self.query_title.content}"
+        
+
+        logger.add(self.file_path,format="{message}",mode="a")
+        logger.info(f"Original User Question: {original_user_query}")
 
         self.original_user_query = original_user_query
         self.coordinates = location_coordiantes  
-        prompts_file = "MCP/prompts.json"
-        with open(prompts_file, 'r') as f:
-            self.prompts = json.load(f)
-
-        
-
-        # await client.setup() ## This has to be run in the main
     
     async def main_runner(self):
         await self.MCP_client.setup()
@@ -86,15 +90,16 @@ class cityplanning_query_runner:
         num_sub_queries = len(subquestions)
 
         for i in range(num_sub_queries):
-            ## Calling the agent for each of the sub-query here
-            
-            
-            
+            ## Calling the agent for each of the sub-query here\
+            logger.add(self.file_path,format="{message}",mode="a")
+            logger.info(f"Sub Question {i}: {subquestions[i]}")
 
+            response = await self.MCP_client.serve_query(query=subquestions[i])
+
+            logger.add(self.file_path,format="{message}",mode="a")
+            logger.info(f"Response {i}: {response}")
         
 
-    
-        ## Do a for loop to 
 
 
 async def main(): 
