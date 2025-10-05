@@ -15,7 +15,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/deck.gl@^9.0.0/dist.min.js"></script>
 
-    <style src="styles.css"></style>
+    <style>
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .spinner {
+        border: 3px solid #374151;
+        border-top: 3px solid #3b82f6;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+      }
+      .message-bubble {
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        max-width: 80%;
+      }
+      .message-user {
+        background: #3b82f6;
+        color: white;
+      }
+      .message-assistant {
+        background: #374151;
+        color: white;
+      }
+    </style>
   </head>
   <body class="overflow-hidden text-white bg-gray-950">
     <div class="flex h-screen">
@@ -339,22 +370,47 @@
               class="flex overflow-hidden flex-col flex-1 min-h-0 bg-gray-900 rounded-lg"
             >
               <div class="flex-shrink-0 p-4 border-b border-gray-800">
-                <h3 class="flex gap-2 items-center text-lg font-semibold">
-                  <svg
-                    class="w-5 h-5 text-green-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                <div class="flex justify-between items-center mb-3">
+                  <h3 class="flex gap-2 items-center text-lg font-semibold">
+                    <svg
+                      class="w-5 h-5 text-green-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                      />
+                    </svg>
+                    AI Assistant
+                  </h3>
+                  <button
+                    id="modeToggle"
+                    onclick="app.toggleMode()"
+                    class="flex gap-2 items-center py-1.5 px-3 text-xs font-semibold bg-blue-600 rounded-lg transition-colors hover:bg-blue-700"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                    />
-                  </svg>
-                  AI Assistant
-                </h3>
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                      />
+                    </svg>
+                    <span id="modeLabel">Chat Mode</span>
+                  </button>
+                </div>
+                <div id="modeDescription" class="text-xs text-gray-400">
+                  Interactive chat with map visualization
+                </div>
               </div>
 
               <div
@@ -378,7 +434,7 @@
                   <p class="mb-3 text-xs font-semibold">
                     Click points on the map, then ask me anything!
                   </p>
-                  <div class="space-y-1">
+                  <div id="chatModeExamples" class="space-y-1">
                     <button
                       onclick="app.setQuery('What cities are near these points?')"
                       class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
@@ -396,6 +452,30 @@
                       class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
                     >
                       "Show air quality data"
+                    </button>
+                  </div>
+                  <div
+                    id="reportModeExamples"
+                    class="space-y-1"
+                    style="display: none"
+                  >
+                    <button
+                      onclick="app.setQuery('Generate a weather comparison report for Tokyo and London')"
+                      class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
+                    >
+                      "Weather comparison for Tokyo and London"
+                    </button>
+                    <button
+                      onclick="app.setQuery('Create an air quality analysis for Delhi and Beijing')"
+                      class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
+                    >
+                      "Air quality analysis for Delhi and Beijing"
+                    </button>
+                    <button
+                      onclick="app.setQuery('Comprehensive city report for New York')"
+                      class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
+                    >
+                      "Comprehensive report for New York"
                     </button>
                   </div>
                 </div>
@@ -429,13 +509,14 @@
                     </svg>
                   </button>
                 </div>
+                <div id="modeHint" class="mt-2 text-xs text-gray-500">
+                  💬 Chat Mode: Interactive queries with map updates
+                </div>
               </div>
             </div>
           </div>
         </div>
       </main>
     </div>
-
-    <script src="script.js"></script>
   </body>
 </html>

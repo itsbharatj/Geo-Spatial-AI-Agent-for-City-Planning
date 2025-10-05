@@ -1,4 +1,5 @@
 const API_URL = "http://localhost:8000/api/city-data";
+const REPORT_API_URL = "http://localhost:8000/plan";
 
 const app = {
   mapView: "leaflet",
@@ -27,11 +28,13 @@ const app = {
   },
   cities: {},
   highlightedCities: [],
+  generatedMarkdown: "",
+  currentMode: "chat", // "chat" or "report"
 
   init() {
     this.setupEventListeners();
     this.initLeafletMap();
-    console.log("Global City Planner initialized - NO initial requests sent");
+    console.log("Global City Planner initialized");
   },
 
   setupEventListeners() {
@@ -139,7 +142,6 @@ const app = {
       document.getElementById("deckgl-container").style.display = "block";
       document.getElementById("deckglBtn").classList.add("active");
 
-      // Always recreate Deck.gl instance for better reliability
       if (this.deckglInstance) {
         this.deckglInstance.finalize();
         this.deckglInstance = null;
@@ -162,9 +164,6 @@ const app = {
       return;
     }
 
-    console.log("Initializing Deck.gl...");
-    console.log("Cities data:", this.cities);
-
     const cityData = Object.values(this.cities).map((city) => ({
       position: [city.lng, city.lat],
       name: city.name,
@@ -173,8 +172,6 @@ const app = {
       aqi: city.aqi,
       temp: city.temp,
     }));
-
-    console.log("City data for Deck.gl:", cityData);
 
     try {
       this.deckglInstance = new deck.DeckGL({
@@ -193,9 +190,6 @@ const app = {
         getTooltip: ({ object }) => this.getDeckGLTooltip(object),
       });
 
-      console.log("Deck.gl initialized successfully");
-
-      // Add a message to confirm
       if (cityData.length > 0) {
         this.addMessage(
           "assistant",
@@ -216,7 +210,6 @@ const app = {
   createDeckGLLayers(cityData) {
     const layers = [];
 
-    // 3D Column Layer - AQI visualization
     if (this.activeLayers.column && cityData.length > 0) {
       layers.push(
         new deck.ColumnLayer({
@@ -236,7 +229,6 @@ const app = {
       );
     }
 
-    // Hexagon Layer - Aggregated heatmap
     if (this.activeLayers.hexagon && cityData.length > 0) {
       layers.push(
         new deck.HexagonLayer({
@@ -261,7 +253,6 @@ const app = {
       );
     }
 
-    // Scatterplot Layer - City bubbles
     if (this.activeLayers.scatterplot && cityData.length > 0) {
       layers.push(
         new deck.ScatterplotLayer({
@@ -283,7 +274,6 @@ const app = {
       );
     }
 
-    // Heatmap Layer - Temperature overlay
     if (this.activeLayers.heatmap && cityData.length > 0) {
       layers.push(
         new deck.HeatmapLayer({
@@ -305,7 +295,6 @@ const app = {
       );
     }
 
-    // Arc Layer - Connections between cities
     if (this.activeLayers.arc && cityData.length > 1) {
       const arcs = [];
       for (let i = 0; i < cityData.length - 1; i++) {
@@ -332,7 +321,6 @@ const app = {
       );
     }
 
-    // Screen Grid Layer - Density visualization
     if (this.activeLayers.grid && cityData.length > 0) {
       layers.push(
         new deck.ScreenGridLayer({
@@ -355,7 +343,6 @@ const app = {
       );
     }
 
-    // Contour Layer - Topographic style
     if (this.activeLayers.contour && cityData.length > 0) {
       layers.push(
         new deck.ContourLayer({
@@ -375,7 +362,6 @@ const app = {
       );
     }
 
-    // Text Layer - City labels
     if (this.activeLayers.text && cityData.length > 0) {
       layers.push(
         new deck.TextLayer({
@@ -398,7 +384,6 @@ const app = {
       );
     }
 
-    // Icon Layer - Weather icons
     if (this.activeLayers.icon && cityData.length > 0) {
       const ICON_MAPPING = {
         marker: { x: 0, y: 0, width: 128, height: 128, mask: true },
@@ -417,10 +402,10 @@ const app = {
           getPosition: (d) => d.position,
           getSize: (d) => 5,
           getColor: (d) => {
-            if (d.temp < 10) return [100, 150, 255]; // Cold - blue
-            if (d.temp < 20) return [150, 200, 255]; // Cool - light blue
-            if (d.temp < 30) return [255, 200, 100]; // Warm - orange
-            return [255, 100, 100]; // Hot - red
+            if (d.temp < 10) return [100, 150, 255];
+            if (d.temp < 20) return [150, 200, 255];
+            if (d.temp < 30) return [255, 200, 100];
+            return [255, 100, 100];
           },
         }),
       );
@@ -453,7 +438,6 @@ const app = {
 
   updateDeckGLLayers() {
     if (!this.deckglInstance) {
-      console.log("Deck.gl instance not found, initializing...");
       this.initDeckGL();
       return;
     }
@@ -466,8 +450,6 @@ const app = {
       aqi: city.aqi,
       temp: city.temp,
     }));
-
-    console.log("Updating Deck.gl layers with", cityData.length, "cities");
 
     try {
       this.deckglInstance.setProps({
@@ -571,11 +553,184 @@ const app = {
     input.value = "";
     this.showLoading();
 
-    await this.sendToBackend(query);
+    // Route based on current mode
+    if (this.currentMode === "report") {
+      await this.generateReportFromChat(query);
+    } else {
+      await this.sendToBackend(query);
+    }
+  },
+
+  toggleMode() {
+    this.currentMode = this.currentMode === "chat" ? "report" : "chat";
+
+    const modeLabel = document.getElementById("modeLabel");
+    const modeDescription = document.getElementById("modeDescription");
+    const modeHint = document.getElementById("modeHint");
+    const modeToggle = document.getElementById("modeToggle");
+    const chatExamples = document.getElementById("chatModeExamples");
+    const reportExamples = document.getElementById("reportModeExamples");
+    const queryInput = document.getElementById("queryInput");
+
+    if (this.currentMode === "report") {
+      // Switch to Report Mode
+      modeLabel.innerHTML =
+        '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>Report Mode</span>';
+      modeDescription.textContent = "Generate comprehensive markdown reports";
+      modeHint.textContent =
+        "Report Mode: Generates downloadable markdown reports";
+      modeToggle.className =
+        "flex gap-2 items-center py-1.5 px-3 text-xs font-semibold bg-green-600 rounded-lg transition-colors hover:bg-green-700";
+      queryInput.placeholder =
+        "Request a report (e.g., 'Compare Tokyo and London')";
+      chatExamples.style.display = "none";
+      reportExamples.style.display = "block";
+
+      this.addMessage(
+        "assistant",
+        "Switched to Report Mode! Ask me to generate comprehensive reports about cities, regions, or comparisons. All responses will be downloadable markdown reports.",
+      );
+    } else {
+      // Switch to Chat Mode
+      modeLabel.innerHTML =
+        '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg><span>Chat Mode</span>';
+      modeDescription.textContent = "Interactive chat with map visualization";
+      modeHint.textContent = "Chat Mode: Interactive queries with map updates";
+      modeToggle.className =
+        "flex gap-2 items-center py-1.5 px-3 text-xs font-semibold bg-blue-600 rounded-lg transition-colors hover:bg-blue-700";
+      queryInput.placeholder = "Ask about marked locations...";
+      chatExamples.style.display = "block";
+      reportExamples.style.display = "none";
+
+      this.addMessage(
+        "assistant",
+        "Switched to Chat Mode! Ask me about locations, weather, air quality, and I'll update the map with visualizations.",
+      );
+    }
+  },
+
+  async generateReportFromChat(query) {
+    try {
+      const response = await fetch(REPORT_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: query }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to generate report");
+      }
+
+      this.generatedMarkdown = await response.text();
+      this.hideLoading();
+
+      // Add report as a special message with download button
+      this.addReportMessage(this.generatedMarkdown);
+    } catch (error) {
+      console.error("Error:", error);
+      this.hideLoading();
+      this.addMessage(
+        "assistant",
+        `Failed to generate report: ${error.message}. Make sure the backend is running.`,
+      );
+    }
+  },
+
+  addReportMessage(markdown) {
+    const container = document.getElementById("messagesContainer");
+    if (!container) return;
+
+    const placeholder = container.querySelector(".text-center");
+    if (placeholder) placeholder.remove();
+
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "flex justify-start";
+
+    const bubble = document.createElement("div");
+    bubble.className = "max-w-full message-bubble message-assistant";
+    bubble.innerHTML = `
+      <div class="mb-3">
+        <div class="flex gap-2 items-center mb-2">
+          <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <span class="font-semibold text-green-400">Report Generated!</span>
+        </div>
+        <p class="mb-3 text-sm text-gray-300">Your markdown report is ready. Here's a preview:</p>
+      </div>
+      <div class="overflow-y-auto p-3 mb-3 max-h-48 bg-gray-800 rounded border border-gray-700">
+        <pre class="font-mono text-xs text-gray-300 whitespace-pre-wrap">${this.escapeHtml(markdown.substring(0, 500))}${markdown.length > 500 ? "..." : ""}</pre>
+      </div>
+      <button onclick="app.downloadMarkdown()" class="flex gap-2 justify-center items-center py-2 px-4 w-full font-semibold text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Download Report
+      </button>
+    `;
+
+    messageDiv.appendChild(bubble);
+    container.appendChild(messageDiv);
+    container.scrollTop = container.scrollHeight;
+  },
+
+  escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
   },
 
   setQuery(text) {
     document.getElementById("queryInput").value = text;
+  },
+
+  toggleMode() {
+    this.currentMode = this.currentMode === "chat" ? "report" : "chat";
+
+    const modeLabel = document.getElementById("modeLabel");
+    const modeDescription = document.getElementById("modeDescription");
+    const modeHint = document.getElementById("modeHint");
+    const modeToggle = document.getElementById("modeToggle");
+    const chatExamples = document.getElementById("chatModeExamples");
+    const reportExamples = document.getElementById("reportModeExamples");
+    const queryInput = document.getElementById("queryInput");
+
+    if (this.currentMode === "report") {
+      // Switch to Report Mode
+      modeLabel.innerHTML =
+        '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>Report Mode</span>';
+      modeDescription.textContent = "Generate comprehensive markdown reports";
+      modeHint.textContent =
+        "Report Mode: Generates downloadable markdown reports";
+      modeToggle.className =
+        "flex gap-2 items-center py-1.5 px-3 text-xs font-semibold bg-green-600 rounded-lg transition-colors hover:bg-green-700";
+      queryInput.placeholder =
+        "Request a report (e.g., 'Compare Tokyo and London')";
+      chatExamples.style.display = "none";
+      reportExamples.style.display = "block";
+
+      this.addMessage(
+        "assistant",
+        "Switched to Report Mode! Ask me to generate comprehensive reports about cities, regions, or comparisons. All responses will be downloadable markdown reports.",
+      );
+    } else {
+      // Switch to Chat Mode
+      modeLabel.innerHTML =
+        '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg><span>Chat Mode</span>';
+      modeDescription.textContent = "Interactive chat with map visualization";
+      modeHint.textContent = "Chat Mode: Interactive queries with map updates";
+      modeToggle.className =
+        "flex gap-2 items-center py-1.5 px-3 text-xs font-semibold bg-blue-600 rounded-lg transition-colors hover:bg-blue-700";
+      queryInput.placeholder = "Ask about marked locations...";
+      chatExamples.style.display = "block";
+      reportExamples.style.display = "none";
+
+      this.addMessage(
+        "assistant",
+        "Switched to Chat Mode! Ask me about locations, weather, air quality, and I'll update the map with visualizations.",
+      );
+    }
   },
 
   async sendToBackend(query) {
@@ -611,7 +766,6 @@ const app = {
   handleBackendResponse(response) {
     this.hideLoading();
 
-    // Auto-add points from AI (for "where is X" queries)
     if (response.autoAddPoints && response.autoAddPoints.length > 0) {
       response.autoAddPoints.forEach((point) => {
         const clickMarker = L.marker([point.lat, point.lng], {
@@ -643,7 +797,6 @@ const app = {
       });
       this.updateClickedPointsCount();
 
-      // Zoom to the new point
       if (response.autoAddPoints.length === 1) {
         this.map.setView(
           [response.autoAddPoints[0].lat, response.autoAddPoints[0].lng],
@@ -686,7 +839,6 @@ const app = {
         this.cityMarkers[key] = marker;
       });
 
-      // Fit bounds to show all cities if multiple
       if (Object.keys(this.cities).length > 1) {
         const bounds = L.latLngBounds(
           Object.values(this.cities).map((c) => [c.lat, c.lng]),
@@ -751,7 +903,6 @@ const app = {
       this.updateDeckGLLayers();
     }
 
-    // If currently on deck.gl view and we just got new data, refresh it
     if (this.mapView === "deckgl" && Object.keys(this.cities).length > 0) {
       if (this.deckglInstance) {
         this.updateDeckGLLayers();
@@ -814,6 +965,30 @@ const app = {
       "assistant",
       "All points cleared. Click on the map to mark new locations.",
     );
+  },
+
+  downloadMarkdown() {
+    if (!this.generatedMarkdown) {
+      this.addMessage("assistant", "No report available to download.");
+      return;
+    }
+
+    const timestamp = new Date().toISOString().slice(0, 10);
+    const filename = `report_${timestamp}.md`;
+
+    const blob = new Blob([this.generatedMarkdown], {
+      type: "text/markdown",
+    });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    this.addMessage("assistant", `Report downloaded as ${filename}`);
   },
 };
 
