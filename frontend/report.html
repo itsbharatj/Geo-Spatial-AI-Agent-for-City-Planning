@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generate Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .spinner {
+        border: 3px solid #374151;
+        border-top: 3px solid #3b82f6;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+    </style>
+  </head>
+  <body
+    class="flex justify-center items-center p-4 min-h-screen text-white bg-gray-950"
+  >
+    <div class="w-full max-w-2xl">
+      <!-- Header -->
+      <div class="mb-8 text-center">
+        <h1 class="mb-2 text-4xl font-bold">Report Generator</h1>
+        <p class="text-gray-400">Generate a markdown report from your query</p>
+      </div>
+
+      <!-- Main Card -->
+      <div class="p-8 bg-gray-900 rounded-lg border border-gray-800 shadow-2xl">
+        <!-- Query Input -->
+        <div class="mb-6">
+          <label class="block mb-3 text-sm font-semibold text-gray-300"
+            >Your Query</label
+          >
+          <textarea
+            id="queryInput"
+            rows="4"
+            placeholder="e.g., Generate a comprehensive report comparing weather, air quality, and demographics for Tokyo, London, and New York"
+            class="py-3 px-4 w-full placeholder-gray-500 text-white bg-gray-800 rounded-lg border border-gray-700 resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            onkeypress="if(event.key === 'Enter' && event.ctrlKey) generateReport()"
+          ></textarea>
+          <p class="mt-2 text-xs text-gray-500">Press Ctrl+Enter to generate</p>
+        </div>
+
+        <!-- Generate Button -->
+        <button
+          id="generateBtn"
+          onclick="generateReport()"
+          class="flex gap-2 justify-center items-center py-3 px-6 w-full font-semibold text-white bg-blue-600 rounded-lg transition-colors duration-200 hover:bg-blue-700"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          Generate Markdown Report
+        </button>
+
+        <!-- Loading State -->
+        <div id="loadingDiv" class="mt-6 text-center" style="display: none">
+          <div class="mx-auto mb-4 spinner"></div>
+          <p class="text-gray-400">Generating report...</p>
+          <p class="mt-2 text-sm text-gray-500">This may take 10-30 seconds</p>
+        </div>
+
+        <!-- Success Message with Download Button -->
+        <div
+          id="successDiv"
+          class="p-4 mt-6 rounded-lg border bg-green-900/20 border-green-500/30"
+          style="display: none"
+        >
+          <div class="flex gap-3 items-start mb-3">
+            <svg
+              class="flex-shrink-0 mt-0.5 w-5 h-5 text-green-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <div class="flex-1">
+              <p class="font-semibold text-green-400">
+                Report generated successfully!
+              </p>
+              <p class="mt-1 text-sm text-gray-300">
+                Your markdown report is ready.
+              </p>
+            </div>
+          </div>
+
+          <!-- Markdown Preview -->
+          <div
+            class="overflow-y-auto p-3 mb-3 max-h-64 bg-gray-800 rounded border border-gray-700"
+          >
+            <pre
+              id="markdownPreview"
+              class="font-mono text-xs text-gray-300 whitespace-pre-wrap"
+            ></pre>
+          </div>
+
+          <!-- Download Button -->
+          <button
+            id="downloadBtn"
+            onclick="downloadMarkdown()"
+            class="flex gap-2 justify-center items-center py-2 px-4 w-full font-semibold text-white bg-blue-600 rounded-lg transition-colors duration-200 hover:bg-blue-700"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            Download Markdown File
+          </button>
+        </div>
+
+        <!-- Error Message -->
+        <div
+          id="errorDiv"
+          class="flex gap-3 items-start p-4 mt-6 rounded-lg border bg-red-900/20 border-red-500/30"
+          style="display: none"
+        >
+          <svg
+            class="flex-shrink-0 mt-0.5 w-5 h-5 text-red-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <div>
+            <p class="font-semibold text-red-400">Error</p>
+            <p id="errorMessage" class="mt-1 text-sm text-gray-300"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Examples -->
+      <div class="p-6 mt-8 bg-gray-900 rounded-lg border border-gray-800">
+        <h3 class="mb-3 text-sm font-semibold text-gray-400">
+          EXAMPLE QUERIES
+        </h3>
+        <div class="space-y-2">
+          <button
+            onclick="setQuery('Generate a weather comparison report for Tokyo, Dubai, and Reykjavik')"
+            class="py-2 px-4 w-full text-sm text-left text-gray-300 bg-gray-800 rounded transition-colors hover:bg-gray-700"
+          >
+            Weather comparison for multiple cities
+          </button>
+          <button
+            onclick="setQuery('Create an air quality analysis for Delhi, Beijing, Los Angeles, and London')"
+            class="py-2 px-4 w-full text-sm text-left text-gray-300 bg-gray-800 rounded transition-colors hover:bg-gray-700"
+          >
+            Air quality analysis
+          </button>
+          <button
+            onclick="setQuery('Comprehensive city report for New York including demographics, economy, and culture')"
+            class="py-2 px-4 w-full text-sm text-left text-gray-300 bg-gray-800 rounded transition-colors hover:bg-gray-700"
+          >
+            Comprehensive single city report
+          </button>
+        </div>
+      </div>
+
+      <!-- Back Link -->
+      <div class="mt-6 text-center">
+        <a
+          href="index.html"
+          class="inline-flex gap-1 items-center text-sm text-blue-400 hover:text-blue-300"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:8000/plan";
+      let generatedMarkdown = "";
+
+      function setQuery(text) {
+        document.getElementById("queryInput").value = text;
+      }
+
+      async function generateReport() {
+        const query = document.getElementById("queryInput").value.trim();
+
+        if (!query) {
+          showError("Please enter a query");
+          return;
+        }
+
+        // Hide previous messages
+        document.getElementById("successDiv").style.display = "none";
+        document.getElementById("errorDiv").style.display = "none";
+
+        // Show loading
+        document.getElementById("loadingDiv").style.display = "block";
+        document.getElementById("generateBtn").disabled = true;
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              query: query,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || "Failed to generate report");
+          }
+
+          // Get the markdown content
+          generatedMarkdown = await response.text();
+
+          // Show preview
+          document.getElementById("markdownPreview").textContent =
+            generatedMarkdown;
+
+          // Hide loading, show success
+          document.getElementById("loadingDiv").style.display = "none";
+          document.getElementById("successDiv").style.display = "block";
+          document.getElementById("generateBtn").disabled = false;
+        } catch (error) {
+          console.error("Error:", error);
+          showError(
+            error.message ||
+              "Failed to generate report. Make sure the backend is running.",
+          );
+          document.getElementById("loadingDiv").style.display = "none";
+          document.getElementById("generateBtn").disabled = false;
+        }
+      }
+
+      function downloadMarkdown() {
+        if (!generatedMarkdown) {
+          showError("No report to download");
+          return;
+        }
+
+        // Create filename from timestamp
+        const timestamp = new Date().toISOString().slice(0, 10);
+        const filename = `report_${timestamp}.md`;
+
+        // Download the file
+        const blob = new Blob([generatedMarkdown], { type: "text/markdown" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
+
+      function showError(message) {
+        document.getElementById("errorMessage").textContent = message;
+        document.getElementById("errorDiv").style.display = "flex";
+      }
+
+      // Focus on input on load
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("queryInput").focus();
+      });
+    </script>
+  </body>
+</html>
