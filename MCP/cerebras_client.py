@@ -20,6 +20,9 @@ class MCP_Client:
                 for key in server["env"]:
                     if re.match(r".*_API_KEY$", key):
                         server["env"][key] = os.getenv(key, "")
+            # if "inputs" in server: 
+            #     server["input"]["id"] = os.getenv("TAVILY_API_KEY")
+            #     server["input"]["description"] = os.getenv("TAVILY_API_KEY")
         self.client = MultiServerMCPClient(config)
         self.llm = ChatCerebras(
             model="gpt-oss-120b",

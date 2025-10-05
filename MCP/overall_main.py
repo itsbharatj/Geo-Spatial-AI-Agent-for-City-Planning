@@ -1,4 +1,4 @@
-from cerebras_client import MCP_Client
+from MCP.cerebras_client import MCP_Client
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 from langchain_cerebras import ChatCerebras
@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 import asyncio
 from loguru import logger
-from MCP_token_summizer import TextSummarizer
+from MCP.MCP_token_summizer import TextSummarizer
 '''
 
     Overall Query runner: 
@@ -101,14 +101,16 @@ class cityplanning_query_runner:
         subquestions = json.loads(sub_queries.choices[0].message.content)["subquestions"]
         num_sub_queries = len(subquestions)
 
-        for i in range(max(num_sub_queries,5)):
+        for i in range(num_sub_queries):
             ## Calling the agent for each of the sub-query here\
 
+
+            print(f"Question: {subquestions[i]}")
             response = await self.MCP_client.serve_query(query=subquestions[i])
 
             with open(self.file_path, 'a') as f:
-                f.write(subquestions[i])
-                f.write(f"Response:  {response}")
+                f.write(f"Subquestion: {subquestions[i]}\n\n")
+                f.write(f"Response:  {response}\n\n")
 
             print("Done",i)
         
@@ -117,10 +119,10 @@ class cityplanning_query_runner:
 
         self.report = self.llm.invoke([("system",self.prompts["Report Generation"]),("human",summary)])
 
-        with open("report.md", "w") as report_file:
+        with open(f"report_{self.query_title.content}.md", "w") as report_file:
             report_file.write(self.report.content)
 
-        return self.report
+        return self.report.content
         
 
 
