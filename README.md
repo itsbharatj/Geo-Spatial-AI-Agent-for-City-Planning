@@ -18,6 +18,8 @@ Think of it as having an expert urban planning team at your fingertips - one tha
 
 The platform employs a **multi-agent AI architecture** where specialized MCP (Model Context Protocol) services act as expert consultants in different domains:
 
+[![Watch Demo](https://img.shields.io/badge/▶️_Watch-Demo_Video-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=N2Y-GupjjWE)
+
 ### The AI Agent Team
 
 Each agent is a specialist that brings domain-specific intelligence:
