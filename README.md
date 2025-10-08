@@ -292,6 +292,10 @@ Cursor-for-Urban-Planners/
     └── integrated_client.py       # ML client interface
 ```
 
+## Acknowledgements:
+
+We would like to express our deepest gratitude to [Professor Anupam Sobti](https://anupamsobti.github.io) for his continuous guidance, insights and support throughout the project. 
+
 ## From Concept to Reality
 
 This isn't just a mapping tool - it's an **AI-powered urban intelligence platform** that brings together:
