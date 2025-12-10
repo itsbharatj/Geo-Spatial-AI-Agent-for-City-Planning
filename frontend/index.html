@@ -1,492 +1,294 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Global City Planner</title>
 
-    <!-- External Libraries -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global City Planner</title>
 
-    <link rel="stylesheet" href="styles.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://unpkg.com/deck.gl@^9.0.0/dist.min.js"></script>
-  </head>
-  <body class="overflow-hidden text-white bg-gray-950">
-    <div class="flex h-screen">
-      <!-- Sidebar -->
-      <aside
-        id="sidebar"
-        class="flex flex-col w-64 bg-gray-900 border-r border-gray-800 transition-all duration-300"
-      >
-        <div class="p-4 border-b border-gray-800">
-          <h1 class="flex gap-2 items-center text-xl font-bold">
-            <svg
-              class="w-6 h-6 text-blue-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
+  <!-- External Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/deck.gl@^9.0.0/dist.min.js"></script>
+</head>
+
+<body class="overflow-hidden text-slate-200 bg-slate-950">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <!-- Sidebar -->
+    <aside id="sidebar" class="flex flex-col w-72 transition-all duration-300 z-50 glass-panel">
+      <div class="p-6 border-b border-gray-800/50">
+        <h1 class="flex gap-3 items-center text-xl font-bold tracking-tight">
+          <div class="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
+            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Global Planner
-          </h1>
-        </div>
-
-        <nav class="overflow-y-auto flex-1 p-4">
-          <div class="mb-6">
-            <h3
-              class="mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase"
-            >
-              Map View
-            </h3>
-            <div class="space-y-2">
-              <button
-                onclick="app.toggleMapView('leaflet')"
-                id="leafletBtn"
-                class="flex gap-3 items-center py-2 px-4 w-full text-left rounded-lg hover:bg-gray-800 map-view-btn active"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                  />
-                </svg>
-                2D Map
-              </button>
-
-              <button
-                onclick="app.toggleMapView('deckgl')"
-                id="deckglBtn"
-                class="flex gap-3 items-center py-2 px-4 w-full text-left rounded-lg hover:bg-gray-800 map-view-btn"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-                  />
-                </svg>
-                3D Globe
-              </button>
-            </div>
           </div>
+          <span class="text-gradient">Global Planner</span>
+        </h1>
+      </div>
 
-          <div class="mb-6">
-            <h3
-              class="mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase"
-            >
-              3D Layers
-            </h3>
-            <div class="space-y-2">
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input
-                  type="checkbox"
-                  class="layer-toggle"
-                  data-layer="column"
-                  checked
-                />
-                <span class="text-sm">3D Columns (AQI)</span>
-              </label>
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input
-                  type="checkbox"
-                  class="layer-toggle"
-                  data-layer="hexagon"
-                />
-                <span class="text-sm">Hexagon Grid</span>
-              </label>
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input
-                  type="checkbox"
-                  class="layer-toggle"
-                  data-layer="scatterplot"
-                  checked
-                />
-                <span class="text-sm">City Bubbles</span>
-              </label>
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input
-                  type="checkbox"
-                  class="layer-toggle"
-                  data-layer="heatmap"
-                />
-                <span class="text-sm">Heatmap Overlay</span>
-              </label>
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input type="checkbox" class="layer-toggle" data-layer="arc" />
-                <span class="text-sm">Connection Arcs</span>
-              </label>
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input type="checkbox" class="layer-toggle" data-layer="grid" />
-                <span class="text-sm">Screen Grid</span>
-              </label>
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input
-                  type="checkbox"
-                  class="layer-toggle"
-                  data-layer="contour"
-                />
-                <span class="text-sm">Contour Lines</span>
-              </label>
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input type="checkbox" class="layer-toggle" data-layer="text" />
-                <span class="text-sm">City Labels</span>
-              </label>
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input type="checkbox" class="layer-toggle" data-layer="icon" />
-                <span class="text-sm">Weather Icons</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="mb-6">
-            <h3
-              class="mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase"
-            >
-              Charts
-            </h3>
-            <div class="space-y-2">
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input
-                  type="checkbox"
-                  class="chart-toggle"
-                  data-chart="temperature"
-                  checked
-                />
-                <span class="text-sm">Temperature</span>
-              </label>
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input
-                  type="checkbox"
-                  class="chart-toggle"
-                  data-chart="aqi"
-                  checked
-                />
-                <span class="text-sm">Air Quality</span>
-              </label>
-              <label
-                class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800"
-              >
-                <input
-                  type="checkbox"
-                  class="chart-toggle"
-                  data-chart="population"
-                />
-                <span class="text-sm">Population</span>
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <h3
-              class="mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase"
-            >
-              Actions
-            </h3>
-            <div class="space-y-2">
-              <button
-                onclick="app.clearPoints()"
-                class="py-2 px-4 w-full text-sm text-left text-red-400 rounded-lg bg-red-900/20 hover:bg-red-900/30"
-              >
-                Clear All Points
-              </button>
-            </div>
-          </div>
-        </nav>
-      </aside>
-
-      <!-- Main Content -->
-      <main class="flex overflow-hidden flex-col flex-1">
-        <header
-          class="flex justify-between items-center p-4 bg-gray-900 border-b border-gray-800"
-        >
-          <div class="flex gap-4 items-center">
-            <button id="sidebarToggle" class="p-2 rounded-lg hover:bg-gray-800">
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
+      <nav class="overflow-y-auto flex-1 p-4">
+        <div class="mb-6">
+          <h3 class="mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase">
+            Map View
+          </h3>
+          <div class="space-y-2">
+            <button onclick="app.toggleMapView('leaflet')" id="leafletBtn"
+              class="flex gap-3 items-center py-2 px-4 w-full text-left rounded-lg hover:bg-gray-800 map-view-btn active">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
               </svg>
+              2D Map
             </button>
-            <h2 class="text-lg font-semibold">Global City Analysis</h2>
-          </div>
 
-          <div class="flex gap-3 items-center">
-            <div class="text-sm text-gray-400">
-              <span id="clickedPointsCount">0</span> points marked
+            <button onclick="app.toggleMapView('deckgl')" id="deckglBtn"
+              class="flex gap-3 items-center py-2 px-4 w-full text-left rounded-lg hover:bg-gray-800 map-view-btn">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+              </svg>
+              3D Globe
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase">
+            3D Layers
+          </h3>
+          <div class="space-y-2">
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="layer-toggle" data-layer="column" checked />
+              <span class="text-sm">3D Columns (AQI)</span>
+            </label>
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="layer-toggle" data-layer="hexagon" />
+              <span class="text-sm">Hexagon Grid</span>
+            </label>
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="layer-toggle" data-layer="scatterplot" checked />
+              <span class="text-sm">City Bubbles</span>
+            </label>
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="layer-toggle" data-layer="heatmap" />
+              <span class="text-sm">Heatmap Overlay</span>
+            </label>
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="layer-toggle" data-layer="arc" />
+              <span class="text-sm">Connection Arcs</span>
+            </label>
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="layer-toggle" data-layer="grid" />
+              <span class="text-sm">Screen Grid</span>
+            </label>
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="layer-toggle" data-layer="contour" />
+              <span class="text-sm">Contour Lines</span>
+            </label>
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="layer-toggle" data-layer="text" />
+              <span class="text-sm">City Labels</span>
+            </label>
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="layer-toggle" data-layer="icon" />
+              <span class="text-sm">Weather Icons</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase">
+            Charts
+          </h3>
+          <div class="space-y-2">
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="chart-toggle" data-chart="temperature" checked />
+              <span class="text-sm">Temperature</span>
+            </label>
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="chart-toggle" data-chart="aqi" checked />
+              <span class="text-sm">Air Quality</span>
+            </label>
+            <label class="flex gap-2 items-center py-2 px-4 rounded cursor-pointer hover:bg-gray-800">
+              <input type="checkbox" class="chart-toggle" data-chart="population" />
+              <span class="text-sm">Population</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase">
+            Actions
+          </h3>
+          <div class="space-y-2">
+            <button onclick="app.clearPoints()"
+              class="py-2 px-4 w-full text-sm text-left text-red-400 rounded-lg bg-red-900/20 hover:bg-red-900/30">
+              Clear All Points
+            </button>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main
+      class="flex overflow-hidden flex-col flex-1 relative bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950">
+      <header class="flex z-10 justify-between items-center p-4 glass border-b border-white/5">
+        <div class="flex gap-4 items-center">
+          <button id="sidebarToggle" class="p-2 rounded-lg hover:bg-gray-800">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <h2 class="text-lg font-semibold">Global City Analysis</h2>
+        </div>
+
+        <div class="flex gap-3 items-center">
+          <div class="text-sm text-gray-400">
+            <span id="clickedPointsCount">0</span> points marked
+          </div>
+        </div>
+      </header>
+
+      <div class="flex overflow-hidden flex-1">
+        <!-- Map -->
+        <div class="flex flex-col flex-1 p-4 min-w-0">
+          <div class="flex flex-col flex-1 p-1 min-h-0 rounded-2xl glass border border-white/5">
+            <div class="flex flex-shrink-0 justify-between items-center mb-3">
+              <h3 class="text-lg font-semibold">World Map</h3>
+              <div class="text-xs text-gray-400">
+                Click anywhere to mark points for analysis
+              </div>
+            </div>
+            <div class="relative flex-1 min-h-0 map-container">
+              <div id="map" class="h-full bg-gray-800 rounded-lg"></div>
+              <div id="deckgl-container" class="h-full bg-gray-800 rounded-lg" style="display: none"></div>
             </div>
           </div>
-        </header>
+        </div>
 
-        <div class="flex overflow-hidden flex-1">
-          <!-- Map -->
-          <div class="flex flex-col flex-1 p-4 min-w-0">
-            <div
-              class="flex flex-col flex-1 p-4 min-h-0 bg-gray-900 rounded-lg"
-            >
-              <div class="flex flex-shrink-0 justify-between items-center mb-3">
-                <h3 class="text-lg font-semibold">World Map</h3>
-                <div class="text-xs text-gray-400">
-                  Click anywhere to mark points for analysis
-                </div>
+        <!-- Right Panel -->
+        <div class="flex overflow-hidden flex-col gap-4 p-4 w-1/3 min-w-[400px]">
+          <!-- Analytics -->
+          <div id="analyticsSection" class="flex overflow-hidden flex-col flex-1 p-4 min-h-0 bg-gray-900 rounded-lg">
+            <h3 class="flex-shrink-0 mb-3 text-lg font-semibold">
+              Analytics
+            </h3>
+            <div class="overflow-auto flex-1 space-y-4">
+              <div id="temperatureChartContainer" class="p-4 bg-gray-800 rounded-lg">
+                <h4 class="mb-3 text-sm font-semibold">
+                  Temperature & Humidity
+                </h4>
+                <canvas id="temperatureChart" class="max-h-48"></canvas>
               </div>
-              <div class="relative flex-1 min-h-0 map-container">
-                <div id="map" class="h-full bg-gray-800 rounded-lg"></div>
-                <div
-                  id="deckgl-container"
-                  class="h-full bg-gray-800 rounded-lg"
-                  style="display: none"
-                ></div>
+
+              <div id="aqiChartContainer" class="p-4 bg-gray-800 rounded-lg">
+                <h4 class="mb-3 text-sm font-semibold">Air Quality Index</h4>
+                <canvas id="aqiChart" class="max-h-48"></canvas>
+              </div>
+
+              <div id="populationChartContainer" class="p-4 bg-gray-800 rounded-lg" style="display: none">
+                <h4 class="mb-3 text-sm font-semibold">Population</h4>
+                <canvas id="populationChart" class="max-h-48"></canvas>
               </div>
             </div>
           </div>
 
-          <!-- Right Panel -->
-          <div
-            class="flex overflow-hidden flex-col gap-4 p-4 w-1/3 min-w-[400px]"
-          >
-            <!-- Analytics -->
-            <div
-              id="analyticsSection"
-              class="flex overflow-hidden flex-col flex-1 p-4 min-h-0 bg-gray-900 rounded-lg"
-            >
-              <h3 class="flex-shrink-0 mb-3 text-lg font-semibold">
-                Analytics
-              </h3>
-              <div class="overflow-auto flex-1 space-y-4">
-                <div
-                  id="temperatureChartContainer"
-                  class="p-4 bg-gray-800 rounded-lg"
-                >
-                  <h4 class="mb-3 text-sm font-semibold">
-                    Temperature & Humidity
-                  </h4>
-                  <canvas id="temperatureChart" class="max-h-48"></canvas>
-                </div>
-
-                <div id="aqiChartContainer" class="p-4 bg-gray-800 rounded-lg">
-                  <h4 class="mb-3 text-sm font-semibold">Air Quality Index</h4>
-                  <canvas id="aqiChart" class="max-h-48"></canvas>
-                </div>
-
-                <div
-                  id="populationChartContainer"
-                  class="p-4 bg-gray-800 rounded-lg"
-                  style="display: none"
-                >
-                  <h4 class="mb-3 text-sm font-semibold">Population</h4>
-                  <canvas id="populationChart" class="max-h-48"></canvas>
-                </div>
-              </div>
-            </div>
-
-            <!-- AI Assistant -->
-            <div
-              class="flex overflow-hidden flex-col flex-1 min-h-0 bg-gray-900 rounded-lg"
-            >
-              <div class="flex-shrink-0 p-4 border-b border-gray-800">
-                <div class="flex justify-between items-center mb-3">
-                  <h3 class="flex gap-2 items-center text-lg font-semibold">
-                    <svg
-                      class="w-5 h-5 text-green-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                      />
-                    </svg>
-                    AI Assistant
-                  </h3>
-                  <button
-                    id="modeToggle"
-                    onclick="app.toggleMode()"
-                    class="flex gap-2 items-center py-1.5 px-3 text-xs font-semibold bg-blue-600 rounded-lg transition-colors hover:bg-blue-700"
-                  >
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                      />
-                    </svg>
-                    <span id="modeLabel">Chat Mode</span>
-                  </button>
-                </div>
-                <div id="modeDescription" class="text-xs text-gray-400">
-                  Interactive chat with map visualization
-                </div>
-              </div>
-
-              <div
-                id="messagesContainer"
-                class="overflow-y-auto flex-1 p-4 space-y-3 min-h-0"
-              >
-                <div class="text-sm text-center text-gray-500">
-                  <svg
-                    class="mx-auto mb-2 w-8 h-8 opacity-50"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
+          <!-- AI Assistant -->
+          <div class="flex overflow-hidden flex-col flex-1 min-h-0 bg-gray-900 rounded-lg">
+            <div class="flex-shrink-0 p-4 border-b border-gray-800">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="flex gap-2 items-center text-lg font-semibold">
+                  <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                   </svg>
-                  <p class="mb-3 text-xs font-semibold">
-                    Click points on the map, then ask me anything!
-                  </p>
-                  <div id="chatModeExamples" class="space-y-1">
-                    <button
-                      onclick="app.setQuery('What cities are near these points?')"
-                      class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
-                    >
-                      "What cities are near these points?"
-                    </button>
-                    <button
-                      onclick="app.setQuery('Compare weather at these locations')"
-                      class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
-                    >
-                      "Compare weather at these locations"
-                    </button>
-                    <button
-                      onclick="app.setQuery('Show air quality data')"
-                      class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
-                    >
-                      "Show air quality data"
-                    </button>
-                  </div>
-                  <div
-                    id="reportModeExamples"
-                    class="space-y-1"
-                    style="display: none"
-                  >
-                    <button
-                      onclick="app.setQuery('Generate a weather comparison report for Tokyo and London')"
-                      class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
-                    >
-                      "Weather comparison for Tokyo and London"
-                    </button>
-                    <button
-                      onclick="app.setQuery('Create an air quality analysis for Delhi and Beijing')"
-                      class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
-                    >
-                      "Air quality analysis for Delhi and Beijing"
-                    </button>
-                    <button
-                      onclick="app.setQuery('Comprehensive city report for New York')"
-                      class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700"
-                    >
-                      "Comprehensive report for New York"
-                    </button>
-                  </div>
-                </div>
+                  AI Assistant
+                </h3>
+                <button id="modeToggle" onclick="app.toggleMode()"
+                  class="flex gap-2 items-center py-1.5 px-3 text-xs font-semibold bg-blue-600 rounded-lg transition-colors hover:bg-blue-700">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                  </svg>
+                  <span id="modeLabel">Chat Mode</span>
+                </button>
               </div>
+              <div id="modeDescription" class="text-xs text-gray-400">
+                Interactive chat with map visualization
+              </div>
+            </div>
 
-              <div class="flex-shrink-0 p-4 border-t border-gray-800">
-                <div class="flex gap-2">
-                  <input
-                    type="text"
-                    id="queryInput"
-                    placeholder="Ask about marked locations..."
-                    class="flex-1 py-2 px-3 text-sm text-white bg-gray-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    onkeypress="if(event.key === 'Enter') app.handleQuery()"
-                  />
-                  <button
-                    onclick="app.handleQuery()"
-                    class="flex gap-2 items-center py-2 px-4 text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700"
-                  >
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                      />
-                    </svg>
+            <div id="messagesContainer" class="overflow-y-auto flex-1 p-4 space-y-3 min-h-0">
+              <div class="text-sm text-center text-gray-500">
+                <svg class="mx-auto mb-2 w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="mb-3 text-xs font-semibold">
+                  Click points on the map, then ask me anything!
+                </p>
+                <div id="chatModeExamples" class="space-y-1">
+                  <button onclick="app.setQuery('What cities are near these points?')"
+                    class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700">
+                    "What cities are near these points?"
+                  </button>
+                  <button onclick="app.setQuery('Compare weather at these locations')"
+                    class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700">
+                    "Compare weather at these locations"
+                  </button>
+                  <button onclick="app.setQuery('Show air quality data')"
+                    class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700">
+                    "Show air quality data"
                   </button>
                 </div>
-                <div id="modeHint" class="mt-2 text-xs text-gray-500">
-                  💬 Chat Mode: Interactive queries with map updates
+                <div id="reportModeExamples" class="space-y-1" style="display: none">
+                  <button onclick="app.setQuery('Generate a weather comparison report for Tokyo and London')"
+                    class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700">
+                    "Weather comparison for Tokyo and London"
+                  </button>
+                  <button onclick="app.setQuery('Create an air quality analysis for Delhi and Beijing')"
+                    class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700">
+                    "Air quality analysis for Delhi and Beijing"
+                  </button>
+                  <button onclick="app.setQuery('Comprehensive city report for New York')"
+                    class="block py-1.5 px-3 w-full text-xs text-left bg-gray-800 rounded hover:bg-gray-700">
+                    "Comprehensive report for New York"
+                  </button>
                 </div>
+              </div>
+            </div>
+
+            <div class="flex-shrink-0 p-4 border-t border-gray-800">
+              <div class="flex gap-2">
+                <input type="text" id="queryInput" placeholder="Ask about marked locations..."
+                  class="flex-1 py-2 px-3 text-sm text-white bg-gray-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  onkeypress="if(event.key === 'Enter') app.handleQuery()" />
+                <button onclick="app.handleQuery()"
+                  class="flex gap-2 items-center py-2 px-4 text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </button>
+              </div>
+              <div id="modeHint" class="mt-2 text-xs text-gray-500">
+                💬 Chat Mode: Interactive queries with map updates
               </div>
             </div>
           </div>
         </div>
-      </main>
-    </div>
-    <script src="script.js"></script>
-  </body>
+      </div>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+
 </html>

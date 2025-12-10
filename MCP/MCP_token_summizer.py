@@ -1,26 +1,26 @@
 import tiktoken
-from langchain_cerebras import ChatCerebras
+from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 
 class TextSummarizer:
-    def __init__(self, api_key, max_context=65000, chunk_size=50000, model="llama-3.3-70b"):
+    def __init__(self, api_key, max_context=65000, chunk_size=50000, model="gemini-2.5-flash"):
         """
-        Initialize the summarizer with Cerebras API via LangChain
+        Initialize the summarizer with Google Gemini
         
         Args:
-            api_key: Cerebras API key
-            max_context: Maximum context length (default 65000 tokens)
-            chunk_size: Size of chunks to process at once (default 50000 tokens)
-            model: Cerebras model to use (default "llama-3.3-70b")
+            api_key: Google API key
+            max_context: Maximum context length 
+            chunk_size: Size of chunks to process at once
+            model: Gemini model to use
         """
-        self.llm = ChatCerebras(
+        self.llm = ChatGoogleGenerativeAI(
             model=model,
-            api_key=api_key,
-            temperature=0.3  # Lower temperature for more consistent summaries
+            google_api_key=api_key,
+            temperature=0.3
         )
         self.max_context = max_context
         self.chunk_size = chunk_size
-        # Using cl100k_base encoding (GPT-4 tokenizer) as approximation
+        # Using cl100k_base encoding as approximation
         self.encoding = tiktoken.get_encoding("cl100k_base")
     
     def count_tokens(self, text):
@@ -50,7 +50,7 @@ class TextSummarizer:
     
     def summarize_chunk(self, text):
         """
-        Summarize a single chunk of text using Cerebras API via LangChain
+        Summarize a single chunk of text
         
         Args:
             text: Text to summarize

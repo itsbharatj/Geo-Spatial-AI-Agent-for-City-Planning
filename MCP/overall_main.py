@@ -1,15 +1,15 @@
-from MCP.cerebras_client import MCP_Client
-from langchain.output_parsers import PydanticOutputParser
+from MCP.gemini_client import MCP_Client
+from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
-from langchain_cerebras import ChatCerebras
+from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel
 import json
-from cerebras.cloud.sdk import Cerebras
 import os
 from dotenv import load_dotenv
 import asyncio
 from loguru import logger
 from MCP.MCP_token_summizer import TextSummarizer
+
 '''
 
     Overall Query runner: 
@@ -36,7 +36,6 @@ class cityplanning_query_runner:
         
 
         ## Define the modules
-        self.LLM_Client = Cerebras(api_key=os.getenv("CEREBRAS_API_KEY"))
         self.results_path = os.makedirs("MCP/processed_prompts",exist_ok=True)
 
         prompts_file = "MCP/prompts.json"
@@ -44,9 +43,10 @@ class cityplanning_query_runner:
             self.prompts = json.load(f)
 
         self.MCP_client = MCP_Client()
-        self.model = "llama-3.3-70b"
-        self.llm = ChatCerebras(
-            model=self.model,  
+        self.model = "gemini-2.5-flash"
+        self.llm = ChatGoogleGenerativeAI(
+            model=self.model,
+            google_api_key=os.getenv("GOOGLE_API_KEY")
         )
         
         self.query_title = self.llm.invoke([("system",self.prompts["User Query Title"]),("human",original_user_query)])
@@ -54,14 +54,14 @@ class cityplanning_query_runner:
         self.file_path = f"MCP/processed_prompts/{self.query_title.content}"
         self.file_path_output = f"MCP/processed_prompts/{self.query_title.content}_summary"
 
-        API_KEY = os.getenv("CEREBRAS_API_KEY", "your-api-key-here")
+        API_KEY = os.getenv("GOOGLE_API_KEY", "your-api-key-here")
 
         # Initialize summarizer
         self.summarizer = TextSummarizer(
             api_key=API_KEY,
             max_context=65000,  # Maximum tokens for final summary
             chunk_size=50000,   # Process 50k tokens at a time
-            model="llama-3.3-70b"  # Cerebras model
+            model=self.model
         )
         
 
@@ -80,25 +80,15 @@ class cityplanning_query_runner:
         sub_queries_format = InputBreakdown.model_json_schema()
         print(sub_queries_format)
 
-        sub_queries = self.LLM_Client.chat.completions.create(
-            model = self.model, 
-            messages = [
+        sub_queries = self.llm.with_structured_output(InputBreakdown).invoke(
+           [
                 {"role":"system","content":self.prompts["User Query Breakdown"]}, 
                 {"role":"user","content":self.original_user_query}
-            ], 
-            response_format= {
-            "type": "json_schema",
-            "json_schema": {
-                "name": "input_breakdown",
-                "strict": True,
-                "schema": sub_queries_format
-            }
-            }
-
+            ]
         )
         
-
-        subquestions = json.loads(sub_queries.choices[0].message.content)["subquestions"]
+        # sub_queries should be an instance of InputBreakdown now
+        subquestions = sub_queries.subquestions
         num_sub_queries = len(subquestions)
 
         for i in range(num_sub_queries):
@@ -124,7 +114,6 @@ class cityplanning_query_runner:
 
         return self.report.content
         
-
 
 
 async def main(): 

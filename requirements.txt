@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-dotenv
+langchain
+langchain-community
+langchain-core
+langchain-google-genai
+google-generativeai
+langgraph
+pydantic
+loguru
+tiktoken
+langchain-mcp-adapters

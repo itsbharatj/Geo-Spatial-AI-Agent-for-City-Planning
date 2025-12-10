@@ -6,7 +6,7 @@ from typing import Any, Dict
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
-from openai import OpenAI
+# from openai import OpenAI
 from pydantic import BaseModel
 
 from MCP.overall_main import cityplanning_query_runner
@@ -24,8 +24,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Initialize Gemini client
+# client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+import google.generativeai as genai
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 SYSTEM_PROMPT = """You are an AI backend for a Global City Planner Dashboard. Your role is to:
 
@@ -202,19 +205,18 @@ async def analyze_city_data(request: CityDataRequest):
         
         context_str = "\n".join(context_parts)
         
-        # Call OpenAI API
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": context_str}
-            ],
-            temperature=0.7,
-            max_tokens=2000
+        # Call Gemini API
+        chat = model.start_chat()
+        response = chat.send_message(
+            SYSTEM_PROMPT + "\n\n" + context_str
         )
         
         # Extract and parse response
-        response_text = response.choices[0].message.content.strip()
+        try:
+            response_text = response.text.strip()
+        except:
+            # Fallback for blocked responses or safety violations
+            response_text = "{}"
         
         # Remove markdown code blocks if present
         if response_text.startswith("```"):
@@ -248,7 +250,7 @@ async def health_check():
     return {
         "status": "healthy",
         "message": "Global City Planner API is running",
-        "model": "gpt-4o"
+        "model": "gemini-2.5-flash"
     }
 
 

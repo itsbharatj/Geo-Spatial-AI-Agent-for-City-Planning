@@ -1,14 +1,14 @@
 import asyncio
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
-from langchain_cerebras import ChatCerebras
+from langchain_google_genai import ChatGoogleGenerativeAI
 import json
 import os
-
 from dotenv import load_dotenv
 import re
+
 class MCP_Client: 
-    def __init__(self,config_file="MCP/mcp_servers.json"): 
+    def __init__(self, config_file="MCP/mcp_servers.json"): 
         load_dotenv()
         with open(config_file) as f:
             config = json.load(f)
@@ -20,15 +20,13 @@ class MCP_Client:
                 for key in server["env"]:
                     if re.match(r".*_API_KEY$", key):
                         server["env"][key] = os.getenv(key, "")
-            # if "inputs" in server: 
-            #     server["input"]["id"] = os.getenv("TAVILY_API_KEY")
-            #     server["input"]["description"] = os.getenv("TAVILY_API_KEY")
+        
         self.client = MultiServerMCPClient(config)
-        self.llm = ChatCerebras(
-            model="gpt-oss-120b",
+        self.llm = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash",
             temperature=0.2,
-            max_tokens=10240,
-            api_key=os.getenv("CEREBRAS_API_KEY")
+            max_tokens=8192,
+            google_api_key=os.getenv("GOOGLE_API_KEY")
         )
         self.agent = None
 
@@ -43,22 +41,23 @@ class MCP_Client:
                 {"messages": [{"role": "user", "content": query}]},
                 config={"recursion_limit": 50}
             )
-            final_weather = response["messages"][-1].content
-            print("Response:", final_weather)
+            final_content = response["messages"][-1].content
+            print("Response:", final_content)
             
             print(f"Total messages in conversation: {len(response['messages'])}")
-            return final_weather
+            return final_content
         
         except Exception as e:
             print(f"Error in query: {e}")
+            return f"Error processing query: {str(e)}"
 
 async def main():
     client = MCP_Client()
     await client.setup()
-    prompt = input()
-    while prompt!="quit": 
+    prompt = input("Enter query (or 'quit' to exit): ")
+    while prompt != "quit": 
         await client.serve_query(query=prompt)
-        prompt = input()
+        prompt = input("Enter query (or 'quit' to exit): ")
 
 if __name__ == "__main__":
     asyncio.run(main())
